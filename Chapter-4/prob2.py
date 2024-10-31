@@ -1,0 +1,11 @@
+students=[]
+s1=int(input("Enter the name of the student: "))
+s2=int(input("Enter the name of the student: "))
+s3=int(input("Enter the name of the student: "))
+s4=int(input("Enter the name of the student: "))
+students.append(s1)
+students.append(s2)
+students.append(s3)
+students.append(s4)
+students.sort()
+print(students)
