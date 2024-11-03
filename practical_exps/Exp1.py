@@ -1,5 +1,4 @@
-# Aim: Write a python program to swap two numbers and check if the first number is positive or negative or zero.
-# Code:
+
 def swap(a,b):
     print("Before swapping a=",a,"b=",b)
     temp=a

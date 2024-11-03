@@ -1,4 +1,4 @@
-# 1. Aim: Write a program to demonstrate exception handling in python
+
 try:
     a = int(input("Enter the dividend: "))
     b = int(input("Enter the divisor: "))

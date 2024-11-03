@@ -1,4 +1,3 @@
-# Aim: Write a menu driven python program to check if number and string palindrome and find the factorial of the input number
 
 def isPalindromenum(num):
     
