@@ -1,2 +1,10 @@
 
-Artificial Intelligence (AI) is a rapidly evolving field of computer science focused on creating systems capable of performing tasks that typically require human intelligence. These tasks include learning, reasoning, problem-solving, perception, and language understanding. AI technologies are being integrated into various industries, revolutionizing the way we live and work by enhancing efficiency, accuracy, and decision-making processes. As AI continues to advance, it holds the potential to unlock new possibilities and address complex challenges across different domains.
+Artificial Intelligence (AI) is a rapidly evolving field of computer 
+science focused on creating systems capable of performing tasks that 
+typically require human intelligence. These tasks include learning, 
+reasoning, problem-solving, perception, and language understanding. AI 
+technologies are being integrated into various industries, 
+revolutionizing the way we live and work by enhancing efficiency, 
+accuracy, and decision-making processes. As AI continues to advance, 
+it holds the potential to unlock new possibilities and address complex 
+challenges across different domains.
