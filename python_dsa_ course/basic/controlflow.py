@@ -23,3 +23,6 @@ else:
     price = "$20"
 
 print("Ticket Price:", price)
+
+for i in range(0,10,1):
+    print(i,end=" ")
