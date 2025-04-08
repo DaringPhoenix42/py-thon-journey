@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ADHD Prediction & Support Platform - Reaction Time Game</title>
+  <!-- Google Font (Poppins) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --brand-purple: #4f3cb3;
+      --brand-dark: #1f1f1f;
+      --brand-light-bg: #f8f9fa;
+      --brand-white: #ffffff;
+      --brand-border: #e5e5e5;
+      --brand-green: #28a745;
+      --gradient-start: #6252cf;
+      --gradient-end: #9a7bf5;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: var(--brand-light-bg);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* -----------------------------------------------------
+       HEADER
+    ----------------------------------------------------- */
+    .navbar {
+      background-color: var(--brand-dark);
+      color: var(--brand-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+    .navbar .logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .navbar .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .navbar .nav-links a {
+      color: var(--brand-white);
+      text-decoration: none;
+      font-weight: 300;
+      transition: opacity var(--transition-speed);
+    }
+    .navbar .nav-links a:hover {
+      opacity: 0.8;
+    }
+
+    /* -----------------------------------------------------
+       HERO SECTION
+    ----------------------------------------------------- */
+    .hero {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: var(--brand-white);
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0.5rem auto 2rem;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .hero .btn-container {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .hero button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background var(--transition-speed);
+      color: var(--brand-white);
+    }
+    .hero .btn-primary {
+      background-color: #3d2f91;
+    }
+    .hero .btn-secondary {
+      background-color: #6751c7;
+    }
+    .hero button:hover {
+      filter: brightness(0.9);
+    }
+
+    /* -----------------------------------------------------
+       CONTAINER & SECTION TITLES
+    ----------------------------------------------------- */
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2rem auto;
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .section-title h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 0.5rem;
+    }
+    .section-title p {
+      font-size: 1rem;
+      color: #666;
+    }
+
+    /* -----------------------------------------------------
+       REACTION TIME GAME SECTION
+    ----------------------------------------------------- */
+    .game-section {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+    }
+    .game-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .game-title h2 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #222;
+    }
+
+    /* Card-like container for the game */
+    #gameCard {
+      background-color: var(--brand-white);
+      border: 1px solid var(--brand-border);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      margin-top: 10px;
+      text-align: center;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Buttons inside the game card */
+    #startButton, #consultDoctor {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background var(--transition-speed);
+      margin: 0.5rem;
+      color: var(--brand-white);
+    }
+    #startButton {
+      background-color: var(--brand-purple);
+    }
+    #startButton:hover {
+      background-color: #3d2f91;
+    }
+    #consultDoctor {
+      display: none;
+      background: var(--brand-green);
+    }
+    #consultDoctor:hover {
+      background: #218838;
+    }
+
+    /* Game area styling */
+    #gameArea {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      margin: 20px auto;
+      background-color: #fff;
+      border: 2px solid var(--brand-purple);
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      animation: scaleIn 0.5s ease-out forwards;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Animated Circle */
+    @keyframes circlePop {
+      0% {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: #ff4136;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      animation: circlePop 0.35s ease-out forwards;
+    }
+    .circle:active {
+      transform: scale(0.9);
+    }
+
+    /* Status messages inside the game */
+    #roundIndicator {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    #message {
+      font-size: 1rem;
+      margin: 10px auto;
+      width: 600px;
+      max-width: 90%;
+      background-color: #fefefe;
+      border: 1px solid var(--brand-border);
+      border-radius: 5px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      transition: opacity var(--transition-speed);
+    }
+
+    /* -----------------------------------------------------
+       FOOTER
+    ----------------------------------------------------- */
+    footer {
+      background-color: var(--brand-white);
+      color: #666;
+      text-align: center;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--brand-border);
+      margin-top: 2rem;
+    }
+    footer p {
+      font-size: 0.9rem;
+      margin: 0.5rem 0;
+    }
+    footer .footer-links {
+      margin-top: 0.5rem;
+    }
+    footer .footer-links a {
+      color: var(--brand-purple);
+      margin: 0 0.5rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    footer .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">ADHD Insight</div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Patient Profile</a>
+      <a href="#">Prediction</a>
+      <a href="#">Insights</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>ADHD Prediction & Support Platform</h1>
+    <p>Empowering individuals through advanced machine learning and comprehensive resources</p>
+    <div class="btn-container">
+      <button class="btn-primary">Start Assessment</button>
+      <button class="btn-secondary">Go to Symptom Tracker</button>
+    </div>
+  </section>
+
+  <!-- Reaction Time Game Section -->
+  <div class="container game-section">
+    <div class="game-title">
+      <h2>Reaction Time Game</h2>
+      <p>Test your reaction speed in a quick, fun challenge!</p>
+    </div>
+
+    <div id="gameCard">
+      <!-- Start & Consult Doctor Buttons -->
+      <button id="startButton">Start Game</button>
+      <button id="consultDoctor">Consult a Doctor</button>
+
+      <!-- Round Indicator -->
+      <div id="roundIndicator"></div>
+
+      <!-- Status Message -->
+      <div id="message">Press "Start Game" to begin.</div>
+
+      <!-- The Game Area (where circles appear) -->
+      <div id="gameArea"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2024 ADHD Insight. All Rights Reserved.</p>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a> |
+      <a href="#">Terms of Service</a> |
+      <a href="#">Legal</a> |
+      <a href="#">FAQ</a>
+    </div>
+  </footer>
+
+  <!-- Reaction Time Game Script -->
+  <script>
+    let startTime, reactionTimes = [];
+    let gameRunning = false;
+    let timeoutId;
+    const totalRounds = 5; // Total rounds to play
+    const reactionThreshold = 350; // Threshold (in ms) for suggesting consultation
+
+    const startButton = document.getElementById('startButton');
+    const gameArea = document.getElementById('gameArea');
+    const message = document.getElementById('message');
+    const roundIndicator = document.getElementById('roundIndicator');
+    const consultDoctorButton = document.getElementById('consultDoctor');
+
+    startButton.addEventListener('click', startGame);
+    consultDoctorButton.addEventListener('click', () => {
+      window.open("https://www.webmd.com/mental-health/adhd/default.htm", "_blank");
+    });
+
+    function startGame() {
+      reactionTimes = [];
+      message.textContent = "Wait for the red circle to appear...";
+      roundIndicator.textContent = "Round: 0 / " + totalRounds;
+      gameRunning = true;
+      startButton.disabled = true;
+      consultDoctorButton.style.display = "none";
+      gameArea.innerHTML = "";
+      
+      // Start first round after a random delay (1 to 3 seconds)
+      let randomDelay = Math.random() * 2000 + 1000;
+      timeoutId = setTimeout(showCircle, randomDelay);
+    }
+
+    function showCircle() {
+      if (!gameRunning) return;
+      const circle = document.createElement('div');
+      circle.classList.add('circle');
+
+      // Set random position inside the game area (accounting for circle size)
+      const maxLeft = gameArea.clientWidth - 50;
+      const maxTop = gameArea.clientHeight - 50;
+      const left = Math.random() * maxLeft;
+      const top = Math.random() * maxTop;
+      circle.style.left = left + "px";
+      circle.style.top = top + "px";
+
+      gameArea.appendChild(circle);
+      startTime = new Date().getTime();
+
+      circle.addEventListener('click', circleClicked);
+    }
+
+    function circleClicked() {
+      let endTime = new Date().getTime();
+      let reactionTime = endTime - startTime;
+      reactionTimes.push(reactionTime);
+
+      // Remove the clicked circle
+      this.remove();
+
+      roundIndicator.textContent = `Round: ${reactionTimes.length} / ${totalRounds}`;
+      message.textContent = `Round ${reactionTimes.length}: Your reaction time was ${reactionTime} ms.`;
+
+      if (reactionTimes.length < totalRounds) {
+        message.textContent += " Get ready for the next round...";
+        let randomDelay = Math.random() * 2000 + 1000;
+        timeoutId = setTimeout(showCircle, randomDelay);
+      } else {
+        gameRunning = false;
+        let avg = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+        avg = Math.round(avg);
+        let resultMsg = `Game over! Your average reaction time is ${avg} ms. `;
+        if (avg > reactionThreshold) {
+          resultMsg += "Your reaction time is slower than average. This test is not a diagnosis, but if you have concerns about ADHD or other attention issues, please consider consulting a doctor.";
+          consultDoctorButton.style.display = "inline-block";
+        } else {
+          resultMsg += "Great job! Your reaction time is within the normal range.";
+        }
+        message.textContent = resultMsg;
+        startButton.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

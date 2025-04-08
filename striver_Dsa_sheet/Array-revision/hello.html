@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Go/No-Go Challenge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f3;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    #gameArea {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      margin: 20px auto;
+      background: #fff;
+      border: 3px solid #333;
+      overflow: hidden;
+    }
+    #startBtn, #restartBtn {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    #scoreBoard {
+      font-size: 20px;
+      margin: 15px;
+    }
+    .stimulus {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      line-height: 100px;
+      font-size: 24px;
+      color: white;
+      user-select: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Go/No-Go Challenge</h1>
+  <button id="startBtn">Start Game</button>
+  <button id="restartBtn" style="display:none;">Play Again</button>
+  <div id="scoreBoard"></div>
+  <div id="gameArea"></div>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const gameArea = document.getElementById("gameArea");
+    const scoreBoard = document.getElementById("scoreBoard");
+
+    let totalRounds = 10;
+    let currentRound = 0;
+    let gameActive = false;
+    let reactionTimes = [];
+    let noGoMistakes = 0;
+    let stimulusDisplayed = false;
+    let stimulusType; // "go" or "no-go"
+    let stimulusStartTime;
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    function startGame() {
+      gameActive = true;
+      currentRound = 0;
+      reactionTimes = [];
+      noGoMistakes = 0;
+      scoreBoard.textContent = "";
+      startBtn.style.display = "none";
+      restartBtn.style.display = "none";
+      gameArea.innerHTML = "";
+      nextRound();
+    }
+
+    function nextRound() {
+      currentRound++;
+      gameArea.innerHTML = "";
+      scoreBoard.textContent = `Round ${currentRound} of ${totalRounds}`;
+      stimulusDisplayed = false;
+      
+      // Wait for a random delay (1-3 seconds) before showing the stimulus
+      setTimeout(displayStimulus, Math.random() * 2000 + 1000);
+    }
+
+    function displayStimulus() {
+      if (!gameActive) return;
+      
+      // Randomly decide stimulus type: 70% chance "go", 30% chance "no-go"
+      stimulusType = Math.random() < 0.7 ? "go" : "no-go";
+      
+      const stimulus = document.createElement("div");
+      stimulus.classList.add("stimulus");
+      if (stimulusType === "go") {
+        stimulus.style.background = "green";
+        stimulus.textContent = "GO";
+      } else {
+        stimulus.style.background = "red";
+        stimulus.textContent = "NO-GO";
+      }
+      gameArea.appendChild(stimulus);
+      stimulusDisplayed = true;
+      stimulusStartTime = new Date().getTime();
+
+      // Attach event listener based on stimulus type
+      stimulus.addEventListener("click", function() {
+        if (stimulusType === "go") {
+          let reactionTime = new Date().getTime() - stimulusStartTime;
+          reactionTimes.push(reactionTime);
+          scoreBoard.textContent = `Round ${currentRound}: Reaction time ${reactionTime} ms.`;
+          gameArea.innerHTML = "";
+          setTimeout(proceedRound, 1000);
+        } else {
+          noGoMistakes++;
+          scoreBoard.textContent = `Round ${currentRound}: Mistake! You clicked on a NO-GO stimulus.`;
+          gameArea.innerHTML = "";
+          setTimeout(proceedRound, 1000);
+        }
+      });
+
+      // For GO trials, if the player doesn't click within a certain timeframe, move on.
+      if (stimulusType === "go") {
+        setTimeout(function() {
+          if (stimulusDisplayed && gameActive) {
+            // If still visible and no click registered, record a missed click as a high reaction time (optional)
+            reactionTimes.push(3000); // 3000 ms as penalty for not responding
+            scoreBoard.textContent = `Round ${currentRound}: No response!`;
+            gameArea.innerHTML = "";
+            setTimeout(proceedRound, 3000);
+          }
+        }, 3000);
+      } else {
+        // For NO-GO trials, if no click happens within 3 seconds, it's a correct inhibition.
+        setTimeout(function() {
+          if (stimulusDisplayed && gameActive && stimulusType === "no-go") {
+            scoreBoard.textContent = `Round ${currentRound}: Correct inhibition!`;
+            gameArea.innerHTML = "";
+            setTimeout(proceedRound, 3000);
+          }
+        }, 3000);
+      }
+    }
+
+    function proceedRound() {
+      stimulusDisplayed = false;
+      if (currentRound < totalRounds) {
+        nextRound();
+      } else {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      gameActive = false;
+      gameArea.innerHTML = "";
+      let avgReactionTime = reactionTimes.length > 0 ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length) : 0;
+      scoreBoard.textContent = `Game Over! Average Reaction Time on GO trials: ${avgReactionTime} ms. No-Go Mistakes: ${noGoMistakes}.`;
+      restartBtn.style.display = "inline-block";
+    }
+  </script>
+</body>
+</html>

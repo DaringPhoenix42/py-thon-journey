@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stroop Color-Word Game</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --main-bg: #1a1a2e;
+      --card-bg: #16213e;
+      --white: #ffffff;
+      --accent: #0f3460;
+      --correct-green: #00b894;
+      --wrong-red: #d63031;
+      --button-gradient: linear-gradient(45deg, #3d2f91, #6c5ce7);
+      --doctor-suggestion: #f39c12;
+      --feedback-font: 1.2rem;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--main-bg);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    }
+
+    #gameContainer {
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      width: 420px;
+      padding: 30px 20px;
+      text-align: center;
+      transform: scale(0.95);
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    #instructions {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    #colorWord {
+      font-size: 3rem;
+      font-weight: 600;
+      margin: 20px 0;
+      min-height: 60px;
+      transition: all var(--transition-speed);
+    }
+
+    .color-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .color-buttons button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      color: var(--white);
+      cursor: pointer;
+      transition: transform var(--transition-speed), filter var(--transition-speed);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .color-buttons button:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    /* Color Buttons */
+    .red-btn { background-color: #ff4757; }
+    .blue-btn { background-color: #1e90ff; }
+    .green-btn { background-color: #2ed573; }
+    .yellow-btn { background-color: #ffa502; }
+
+    #startBtn {
+      background: var(--button-gradient);
+      color: var(--white);
+      padding: 15px 25px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform var(--transition-speed), filter var(--transition-speed);
+      margin-bottom: 20px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    #startBtn:hover {
+      transform: scale(1.03);
+      filter: brightness(1.1);
+    }
+
+    #feedback {
+      font-size: var(--feedback-font);
+      margin-bottom: 15px;
+      min-height: 30px;
+      transition: opacity var(--transition-speed);
+    }
+
+    #feedback.correct { color: var(--correct-green); }
+    #feedback.wrong { color: var(--wrong-red); }
+
+    #results {
+      font-size: 1rem;
+      margin-top: 15px;
+      line-height: 1.5;
+    }
+
+    #doctorAdvice {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: var(--doctor-suggestion);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Stroop Color-Word Game</h1>
+  <div id="gameContainer">
+    <p id="instructions">
+      Click the button that matches the <strong>COLOR</strong> of the text (not the word itself)!
+    </p>
+    <button id="startBtn">Start Game</button>
+    <div id="colorWord"></div>
+    <div class="color-buttons">
+      <button class="red-btn" data-color="red">Red</button>
+      <button class="blue-btn" data-color="blue">Blue</button>
+      <button class="green-btn" data-color="green">Green</button>
+      <button class="yellow-btn" data-color="yellow">Yellow</button>
+    </div>
+    <div id="feedback"></div>
+    <div id="results"></div>
+    <div id="doctorAdvice" style="display:none;">
+      Your performance suggests you might benefit from professional guidance. Please consider consulting a doctor.
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const TOTAL_TRIALS = 10;
+    const COLORS = ["red", "blue", "green", "yellow"];
+    const COLOR_WORDS = ["RED", "BLUE", "GREEN", "YELLOW"];
+    const REACTION_THRESHOLD = 800; // threshold in ms; above which performance is considered "bad"
+
+    // DOM Elements
+    const startBtn = document.getElementById("startBtn");
+    const colorWordElem = document.getElementById("colorWord");
+    const colorButtons = document.querySelectorAll(".color-buttons button");
+    const feedbackElem = document.getElementById("feedback");
+    const resultsElem = document.getElementById("results");
+    const doctorAdviceElem = document.getElementById("doctorAdvice");
+
+    // Game variables
+    let currentTrial = 0;
+    let startTime = 0;
+    let reactionTimes = [];
+    let correctCount = 0;
+
+    // Event Listeners
+    startBtn.addEventListener("click", startGame);
+    colorButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        checkAnswer(button.getAttribute("data-color"));
+      });
+    });
+
+    function startGame() {
+      // Reset game variables
+      currentTrial = 0;
+      reactionTimes = [];
+      correctCount = 0;
+      feedbackElem.textContent = "";
+      resultsElem.textContent = "";
+      doctorAdviceElem.style.display = "none";
+      startBtn.disabled = true;
+      startBtn.style.opacity = "0.7";
+      nextTrial();
+    }
+
+    function nextTrial() {
+      if (currentTrial < TOTAL_TRIALS) {
+        currentTrial++;
+        // Randomly choose a word and a text color (they may or may not match)
+        const randomWordIndex = Math.floor(Math.random() * COLORS.length);
+        const randomColorIndex = Math.floor(Math.random() * COLORS.length);
+        const wordText = COLOR_WORDS[randomWordIndex];
+        const textColor = COLORS[randomColorIndex];
+
+        // Update DOM with a cool fade effect
+        colorWordElem.style.opacity = "0";
+        setTimeout(() => {
+          colorWordElem.textContent = wordText;
+          colorWordElem.style.color = textColor;
+          colorWordElem.style.opacity = "1";
+          // Record start time for reaction
+          startTime = performance.now();
+        }, 300);
+      } else {
+        endGame();
+      }
+    }
+
+    function checkAnswer(selectedColor) {
+      // Calculate reaction time
+      const endTime = performance.now();
+      const rt = endTime - startTime;
+      const actualColor = colorWordElem.style.color;
+
+      if (selectedColor === actualColor) {
+        feedbackElem.textContent = "Correct!";
+        feedbackElem.classList.remove("wrong");
+        feedbackElem.classList.add("correct");
+        correctCount++;
+        reactionTimes.push(rt);
+      } else {
+        feedbackElem.textContent = "Wrong!";
+        feedbackElem.classList.remove("correct");
+        feedbackElem.classList.add("wrong");
+      }
+
+      setTimeout(() => {
+        feedbackElem.textContent = "";
+        nextTrial();
+      }, 600);
+    }
+
+    function endGame() {
+      colorWordElem.textContent = "";
+      startBtn.disabled = false;
+      startBtn.style.opacity = "1";
+
+      let avgRT = reactionTimes.length > 0
+        ? reactionTimes.reduce((sum, time) => sum + time, 0) / reactionTimes.length
+        : 0;
+      avgRT = Math.round(avgRT);
+      const accuracy = ((correctCount / TOTAL_TRIALS) * 100).toFixed(1);
+      resultsElem.innerHTML = `
+        <p><strong>Game Over!</strong></p>
+        <p>Correct Answers: ${correctCount} / ${TOTAL_TRIALS} (${accuracy}%)</p>
+        <p>Average Reaction Time (correct answers): ${avgRT} ms</p>
+      `;
+
+      // If average reaction time exceeds threshold, show suggestion to consult a doctor.
+      if (avgRT > REACTION_THRESHOLD) {
+        doctorAdviceElem.style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>

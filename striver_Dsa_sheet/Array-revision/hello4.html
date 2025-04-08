@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visual Search Game</title>
+  <style>
+    /* 1. GLOBAL STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Open Sans", sans-serif;
+      background-color: #f0f0f0; /* Light, neutral background */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* 2. CARD CONTAINER */
+    .game-container {
+      background-color: #fff; /* White card */
+      width: 360px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      color: #333;
+    }
+    p {
+      margin-bottom: 8px;
+    }
+
+    /* 3. SCORE/TIME DISPLAY */
+    .score-board {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    #targetLetter {
+      font-weight: bold;
+      color: #007bff; /* Emphasize target letter in blue */
+      font-size: 20px;
+    }
+
+    /* 4. GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 50px);
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .cell {
+      width: 50px;
+      height: 50px;
+      background-color: #ebebeb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .cell:hover {
+      background-color: #d9d9d9;
+      transform: scale(1.05);
+    }
+    .correct {
+      background-color: #28a745 !important; /* Green for correct */
+      color: #fff !important;
+      transform: scale(1.1);
+    }
+    .wrong {
+      background-color: #dc3545 !important; /* Red for wrong */
+      color: #fff !important;
+    }
+
+    /* 5. BUTTONS */
+    .button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+      margin-bottom: 10px;
+    }
+    .button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    /* 6. GAME OVER MODAL */
+    .game-over {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      background: #ffe8e8;
+      color: #333;
+    }
+    .game-over h2 {
+      margin-bottom: 8px;
+      font-size: 20px;
+      color: #dc3545;
+    }
+    .game-over p {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Find the Target</h1>
+    <p>Find and click on: <span id="targetLetter"></span></p>
+    <p class="score-board">
+      Time Left: <span id="time">60</span>s | Score: <span id="score">0</span>
+    </p>
+
+    <div class="grid" id="grid"></div>
+
+    <button class="button" onclick="restartGame()">Restart Game</button>
+
+    <div id="gameOver" class="game-over">
+      <h2>Game Over!</h2>
+      <p>Your Score: <span id="finalScore"></span></p>
+      <p id="message"></p>
+      <button class="button" onclick="restartGame()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    /* GAME LOGIC */
+    const GRID_SIZE = 6;
+    let gridCount = GRID_SIZE * GRID_SIZE;
+    let symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let targetLetter = "";
+    let score = 0;
+    let timeLeft = 60;
+    let timer;
+
+    function getRandomLetter() {
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    function generateGrid() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      targetLetter = getRandomLetter();
+      document.getElementById("targetLetter").textContent = targetLetter;
+
+      // Place multiple targets
+      let targetPositions = new Set();
+      while (targetPositions.size < 4) {
+        targetPositions.add(Math.floor(Math.random() * gridCount));
+      }
+
+      for (let i = 0; i < gridCount; i++) {
+        let symbol = targetPositions.has(i) ? targetLetter : getRandomLetter();
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.textContent = symbol;
+
+        cell.addEventListener("click", function () {
+          if (symbol === targetLetter) {
+            score += 10;
+            this.classList.add("correct");
+            // Regenerate grid after a short delay
+            setTimeout(generateGrid, 300);
+          } else {
+            score -= 5;
+            this.classList.add("wrong");
+          }
+          document.getElementById("score").textContent = score;
+          // Disable further clicks on this cell
+          this.style.pointerEvents = "none";
+        });
+
+        grid.appendChild(cell);
+      }
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 60;
+      document.getElementById("score").textContent = score;
+      document.getElementById("time").textContent = timeLeft;
+      document.getElementById("gameOver").style.display = "none";
+
+      generateGrid();
+
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("time").textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(timer);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      document.getElementById("gameOver").style.display = "block";
+      document.getElementById("finalScore").textContent = score;
+
+      let message = "Well done!";
+      if (score < 20) {
+        message = "Consider consulting a doctor for attention issues.";
+      } else if (score < 50) {
+        message = "You can improve with more practice!";
+      }
+      document.getElementById("message").textContent = message;
+    }
+
+    function restartGame() {
+      clearInterval(timer);
+      startGame();
+    }
+
+    // Initialize game on page load
+    startGame();
+  </script>
+</body>
+</html>
